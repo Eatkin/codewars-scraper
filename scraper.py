@@ -97,7 +97,7 @@ def online_scraper(github_signin, username, password):
         username_form = driver.find_element(By.ID, "user_email")
         username_form.send_keys(username)
         password_form = driver.find_element(By.ID, "user_password")
-        password_form = driver.find_element(By.ID, "user_password")
+        password_form.send_keys(password)
 
         # Press sign in button
         submit_button = driver.find_element(By.CSS_SELECTOR,
