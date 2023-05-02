@@ -185,9 +185,6 @@ def parse_page(page):
 
 
 def main():
-    # Set the filename
-    filename = "codewars.html"
-
     # Ask if user wants to use online or offline scraper
     scraper_type = input("Use the (l)ive (online) or (o)ffline scraper? ")
     while scraper_type.lower() not in ["l", "o"]:
