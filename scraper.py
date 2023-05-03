@@ -23,6 +23,8 @@ language_filetypes = {
     "javascript": ".js",
     "python": ".py",
     "shell": ".sh",
+    "c#": ".cs",
+    "sql": ".sql",
 }
 
 # Set up comments dictionary for each language
@@ -31,6 +33,8 @@ language_comments = {
     "javascript": "//",
     "python": "#",
     "shell": "#",
+    "c#": "//",
+    "sql": "--",
 }
 
 # Create a translator which will remove all punctuation and replace spaces with underscores
