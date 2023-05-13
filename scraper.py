@@ -25,6 +25,7 @@ language_filetypes = {
     "shell": ".sh",
     "c#": ".cs",
     "sql": ".sql",
+    "bf": ".bf",
 }
 
 # Set up comments dictionary for each language
@@ -35,6 +36,7 @@ language_comments = {
     "shell": "#",
     "c#": "//",
     "sql": "--",
+    "bf": "",
 }
 
 # Create a translator which will remove all punctuation and replace spaces with underscores
@@ -151,6 +153,10 @@ def parse_page(page):
         difficulty = head_data.find("span").text
         problem_name = head_data.find("a").text
         problem_link = head_data.find("a")["href"]
+
+        # Fix for relative URL in live scraper
+        if "codewars.com" not in problem_link:
+            problem_link = "https://www.codewars.com" + problem_link
 
         # The h6 is directly below
         language = solution.find("h6").text[:-1]
