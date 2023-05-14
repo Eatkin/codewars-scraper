@@ -15,6 +15,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 # Constants
 SCROLL_PAUSE_TIME = 1
+MAX_SCROLL_ATTEMPTS = 20
 
 # Set up filetypes dictionary for each language
 # Ensure the languages are lowercase
@@ -79,7 +80,6 @@ def online_scraper(github_signin, username, password):
     driver.get("https://www.codewars.com/users/sign_in")
 
     if github_signin:
-        # World's longest css selector
         button = button = driver.find_element(
             By.CSS_SELECTOR, "button[data-action='auth#githubSignIn']")
         button.click()
@@ -120,6 +120,7 @@ def online_scraper(github_signin, username, password):
     # (Ref: https://stackoverflow.com/questions/20986631/how-can-i-scroll-a-web-page-using-selenium-webdriver-in-python/27760083#27760083)
     last_height = driver.execute_script("return document.body.scrollHeight")
 
+    scroll_attempts = 0
     while True:
         # Scroll down to bottom
         driver.execute_script(
@@ -131,8 +132,12 @@ def online_scraper(github_signin, username, password):
         # Calculate new scroll height and compare with last scroll height
         new_height = driver.execute_script("return document.body.scrollHeight")
         if new_height == last_height:
-            break
-        last_height = new_height
+            scroll_attempts += 1
+            if scroll_attempts >= MAX_SCROLL_ATTEMPTS:
+                break
+        else:
+            last_height = new_height
+            scroll_attempts = 0
 
     # Create soup and parse page
     soup = BeautifulSoup(driver.page_source, "html.parser")
@@ -146,8 +151,11 @@ def parse_page(page):
     # Get the solutions
     solutions = main_content.find_all("div", class_="list-item-solutions")
 
+    problem_count = 0
+
     # Loop through all solutions
     for solution in solutions:
+        problem_count += 1
         # Get the difficulty, problem name and link
         head_data = solution.find("div", class_="item-title")
         difficulty = head_data.find("span").text
@@ -165,7 +173,15 @@ def parse_page(page):
         # There may be multiple solutions, so reverse the order going from oldest first
         # This means we can save the refactors as v2, v3, etc.
         solution_code = solution.find_all("code")
+
+        datetimes = []
+        time_agos = solution.find_all("time-ago")
+        for time_ago in time_agos:
+            datetimes.append(time_ago["datetime"])
+
         solution_code.reverse()
+        datetimes.reverse()
+
         for version, code_block in enumerate(solution_code):
             # Construct the filename
             filename = problem_name
@@ -181,6 +197,7 @@ def parse_page(page):
 
             # Construct the comment
             comment = f"{language_comments[language.lower()]} {problem_link}"
+            comment += f"\n{datetimes[version]}"
 
             # Now write the file
             # Create directory if necessary
@@ -192,6 +209,8 @@ def parse_page(page):
                 with (open(filepath, "w")) as f:
                     f.write(comment + "\n")
                     f.write(code_block.text)
+
+    print("Scraped {} solutions".format(problem_count))
 
 
 def main():
