@@ -197,7 +197,7 @@ def parse_page(page):
 
             # Construct the comment
             comment = f"{language_comments[language.lower()]} {problem_link}"
-            comment += f"\n{datetimes[version]}"
+            comment += f"\n{language_comments[language.lower()]} {datetimes[version]}"
 
             # Now write the file
             # Create directory if necessary
