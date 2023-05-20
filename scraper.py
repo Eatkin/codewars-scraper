@@ -27,6 +27,7 @@ language_filetypes = {
     "c#": ".cs",
     "sql": ".sql",
     "bf": ".bf",
+    "prolog": ".pl",
 }
 
 # Set up comments dictionary for each language
@@ -38,6 +39,7 @@ language_comments = {
     "c#": "//",
     "sql": "--",
     "bf": "",
+    "prolog": "%",
 }
 
 # Create a translator which will remove all punctuation and replace spaces with underscores
