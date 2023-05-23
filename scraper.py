@@ -168,38 +168,53 @@ def parse_page(page):
         if "codewars.com" not in problem_link:
             problem_link = "https://www.codewars.com" + problem_link
 
-        # The h6 is directly below
-        language = solution.find("h6").text[:-1]
+        # Languages are stored in h6, solutions are stored in code blocks
+        # Date and time are stored in time-ago tags
+        # Loop through all the elements in "solution"
+        language = None
+        solution_code = None
+        datetime = None
 
-        # Now the solution itself
-        # There may be multiple solutions, so reverse the order going from oldest first
-        # This means we can save the refactors as v2, v3, etc.
-        solution_code = solution.find_all("code")
+        solution_details = []
 
-        datetimes = []
-        time_agos = solution.find_all("time-ago")
-        for time_ago in time_agos:
-            datetimes.append(time_ago["datetime"])
+        for element in solution.descendants:
+            if element.name == "h6":
+                language = element.text[:-1]
+            elif element.name == "code":
+                solution_code = element.text
+            elif element.name == "time-ago":
+                # Datetime is the last attribute before a new solution
+                datetime = element["datetime"]
+                solution_details.append((language, solution_code, datetime))
 
-        solution_code.reverse()
-        datetimes.reverse()
+        # Now reverse the order of the solutions so that the oldest is first
+        solution_details.reverse()
+        revision = 1
+        current_language = None
 
-        for version, code_block in enumerate(solution_code):
-            # Construct the filename
+        # Loop through all the solutions found
+        for language, solution_code, datetime in solution_details:
+            if language != current_language:
+                revision = 1
+                current_language = language
+            else:
+                revision += 1
+
+            # Construct filename
             filename = problem_name
-            if version > 0:
-                filename += f"-v{version + 1}"
+            if revision > 1:
+                filename += f"-v{revision}"
             filename += f"-{difficulty}"
             filename = filename.translate(translator)
             filename += language_filetypes[language.lower()]
 
-            # Construct the filepath
+            # Filepath
             directory = f"{language}"
             filepath = f"{language}/{filename}"
 
-            # Construct the comment
+            # Comment
             comment = f"{language_comments[language.lower()]} {problem_link}"
-            comment += f"\n{language_comments[language.lower()]} {datetimes[version]}"
+            comment += f"\n{language_comments[language.lower()]} {datetime}"
 
             # Now write the file
             # Create directory if necessary
@@ -210,7 +225,7 @@ def parse_page(page):
             if not os.path.exists(filepath):
                 with (open(filepath, "w")) as f:
                     f.write(comment + "\n")
-                    f.write(code_block.text)
+                    f.write(solution_code)
 
     print("Scraped {} solutions".format(problem_count))
 
