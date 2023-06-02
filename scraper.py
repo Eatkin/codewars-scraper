@@ -28,6 +28,8 @@ language_filetypes = {
     "sql": ".sql",
     "bf": ".bf",
     "prolog": ".pl",
+    "powershell": ".ps1",
+    "coffeescript": ".coffee",
 }
 
 # Set up comments dictionary for each language
@@ -40,6 +42,8 @@ language_comments = {
     "sql": "--",
     "bf": "",
     "prolog": "%",
+    "powershell": "#",
+    "coffeescript": "#",
 }
 
 # Create a translator which will remove all punctuation and replace spaces with underscores
