@@ -213,8 +213,11 @@ def parse_page(page):
             filename += language_filetypes[language.lower()]
 
             # Filepath
+            root_dir = os.path.dirname(os.path.abspath(__file__))
             directory = f"{language}"
+            directory = os.path.join(root_dir, directory)
             filepath = f"{language}/{filename}"
+            filepath = os.path.join(root_dir, filepath)
 
             # Comment
             comment = f"{language_comments[language.lower()]} {problem_link}"
