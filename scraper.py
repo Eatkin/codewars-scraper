@@ -30,6 +30,9 @@ language_filetypes = {
     "prolog": ".pl",
     "powershell": ".ps1",
     "coffeescript": ".coffee",
+    "go": ".go",
+    "swift": ".swift",
+    "kotlin": ".kt",
 }
 
 # Set up comments dictionary for each language
@@ -44,6 +47,10 @@ language_comments = {
     "prolog": "%",
     "powershell": "#",
     "coffeescript": "#",
+    "go": "//",
+    "swift": "//",
+    "kotlin": "//",
+
 }
 
 # Create a translator which will remove all punctuation and replace spaces with underscores
@@ -116,6 +123,22 @@ def online_scraper(github_signin, username, password):
                                             "input[type='submit']")
         submit_button.click()
 
+    # Wait for the page to load
+    sleep(2)
+
+    # Wait to see if we're redirected here https://github.com/sessions/two-factor/app
+    # If so, we need to fill in the 2FA code
+    redirect = "https://github.com/sessions/two-factor/app"
+    if redirect in driver.current_url:
+        auth = driver.find_element(By.ID, "app_totp")
+        print("Please enter your 2FA code")
+        _2fa = input("2FA code: ")
+        auth.send_keys(_2fa)
+
+        # It should auto-redirect without clicking button
+        sleep(2)
+
+
     # We should now be logged in and get redirected to the dashboard
     # But we don't want to be there, so let's go to the solutions page
     driver.get(
@@ -134,6 +157,8 @@ def online_scraper(github_signin, username, password):
 
         # Wait to load page
         sleep(SCROLL_PAUSE_TIME)
+
+        print("Scrolling...")
 
         # Calculate new scroll height and compare with last scroll height
         new_height = driver.execute_script("return document.body.scrollHeight")
@@ -156,6 +181,7 @@ def parse_page(page):
 
     # Get the solutions
     solutions = main_content.find_all("div", class_="list-item-solutions")
+    print(f"Found {len(solutions)} solutions to parse")
 
     problem_count = 0
 
